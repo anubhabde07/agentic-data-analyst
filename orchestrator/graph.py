@@ -4,12 +4,14 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langchain.chat_models import init_chat_model
 from orchestrator.state import AgentState
 from orchestrator.mcp_tools import load_tools
-from langchain.messages import SystemMessage
+from langchain.messages import SystemMessage, ToolMessage
 from dotenv import load_dotenv
 
 SYSTEM_PROMPT = """You are a data analyst agent. You have tools to load and
 explore a dataset before answering questions. Always check the schema
 before assuming column names exist."""
+
+MAX_MESSAGES = 10
 
 
 def get_text(message) -> str:
@@ -31,15 +33,57 @@ async def build_graph():
     load_dotenv()
     
     tools = await load_tools()
-    model = init_chat_model("anthropic:claude-haiku-4-5-20251001").bind_tools(tools)
+    model = init_chat_model("groq:qwen/qwen3.6-27b").bind_tools(tools)
+    
+    # def agent_node(state: AgentState):
+    #     """Call the model with the current message history, injecting the system
+    #     prompt once if it isn't already present."""
+    #     messages = state["messages"]
+    #     if not any(isinstance(m, SystemMessage) for m in messages):
+    #         messages = [SystemMessage(SYSTEM_PROMPT)] + messages
+    #     response = model.invoke(messages)
+    #     return {"messages": [response]}
     
     def agent_node(state: AgentState):
-        """Call the model with the current message history, injecting the system
-        prompt once if it isn't already present."""
-        messages = state["messages"]
-        if not any(isinstance(m, SystemMessage) for m in messages):
-            messages = [SystemMessage(SYSTEM_PROMPT)] + messages
-        response = model.invoke(messages)
+        """
+        Call the model using a compact message history.
+
+        - Keep only recent messages.
+        - Compress old ToolMessages.
+        - Preserve error messages for retries.
+        """
+
+        recent_messages = state["messages"][-MAX_MESSAGES:]
+
+        compact_messages = []
+
+        for msg in recent_messages:
+
+            if isinstance(msg, ToolMessage):
+                text = get_text(msg)
+
+                if text.startswith("ERROR:"):
+                    # Preserve enough of the error so the model can retry.
+                    summary = text[:300]
+                else:
+                    # Replace large successful tool outputs.
+                    summary = "Tool completed successfully."
+
+                compact_messages.append(
+                    ToolMessage(
+                        content=summary,
+                        tool_call_id=msg.tool_call_id,
+                    )
+                )
+
+            else:
+                compact_messages.append(msg)
+
+        if not any(isinstance(m, SystemMessage) for m in compact_messages):
+            compact_messages.insert(0, SystemMessage(SYSTEM_PROMPT))
+
+        response = model.invoke(compact_messages)
+
         return {"messages": [response]}
 
 

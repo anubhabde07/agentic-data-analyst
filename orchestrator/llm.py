@@ -1,5 +1,5 @@
 import os
-from anthropic import Anthropic
+from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,17 +17,20 @@ Rules:
 
 class LLM:
     def __init__(self):
-        self.client = Anthropic(
-            api_key=os.getenv("ANTHROPIC_API_KEY")
+        self.client = Groq(
+            api_key=os.getenv("GROQ_API_KEY")
         )
-
+        
     def generate_code(self, task: str) -> str:
-        response = self.client.messages.create(
-            model="claude-haiku-4-5-20251001",
+        response = self.client.chat.completions.create(
+            model="qwen/qwen3.6-27b",   # or another Groq-supported model
             temperature=0,
-            max_tokens=1500,
-            system=SYSTEM_PROMPT,
+            max_completion_tokens=1500,
             messages=[
+                {
+                    "role": "system",
+                    "content": SYSTEM_PROMPT
+                },
                 {
                     "role": "user",
                     "content": task
@@ -35,4 +38,4 @@ class LLM:
             ]
         )
 
-        return response.content[0].text.strip()
+        return response.choices[0].message.content.strip()

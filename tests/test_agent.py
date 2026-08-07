@@ -9,7 +9,7 @@ async def main():
 
         result = await agent.ainvoke(
             {"messages": [{"role": "user", "content":
-                "Load data/Walmart_Sales.csv, then tell me what columns are in it."}]},
+                "Clean this data/laptopData.csv dataset, remove duplicates, handle missing values and outliers, then tell me which features have the strongest influence on laptop price. Visualize the top relationship and export the cleaned dataset."}]},
             config,
         )
 

@@ -17,6 +17,7 @@ ipykernel
 # ==========================
 pandas
 matplotlib
+tabulate
 
 
 
@@ -24,6 +25,8 @@ langgraph
 langchain-mcp-adapters 
 langchain
 langchain-anthropic
+langchain-groq
+langchain_google_genai
 
 
 groq
