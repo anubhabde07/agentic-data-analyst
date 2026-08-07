@@ -1,0 +1,29 @@
+# Virtual environment
+myenv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Environment variables
+.env
+
+# IDE files
+.vscode/
+.idea/
+
+# Database (if generated locally)
+data/sample.db
+
+# OS files
+.DS_Store
+Thumbs.db
+
+
+
+# LangGraph generated files
+.langgraph_checkpoint*.pckl
+.langgraph_ops.pckl
+.langgraph_retry_counter.pckl
+store.pckl
+store.vectors.pckl

@@ -1,0 +1,29 @@
+# ==========================
+# MCP (Model Context Protocol)
+# ==========================
+mcp
+fastmcp
+anthropic
+python-dotenv
+
+# ==========================
+# Jupyter Execution Engine
+# ==========================
+jupyter_client
+ipykernel
+
+# ==========================
+# Data Analysis & Visualization
+# ==========================
+pandas
+matplotlib
+
+
+
+langgraph 
+langchain-mcp-adapters 
+langchain
+langchain-anthropic
+
+
+groq
