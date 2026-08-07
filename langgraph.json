@@ -1,8 +1,0 @@
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "dependencies": ["."],
-  "graphs": {
-    "data_analyst": "./orchestrator/studio_graph.py:make_graph"
-  },
-  "env": "./.env"
-}
